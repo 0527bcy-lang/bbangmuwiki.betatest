@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나무위키 스타일 프로필 생성기</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.6;
+            color: #373a3c;
+            background-color: #ffffff;
+            padding: 15px;
+        }
+        .wiki-container { max-width: 768px; margin: 0 auto; position: relative; }
+        
+        /* 작성 모드 및 완료 모드 제어 */
+        .edit-view { display: block; }
+        .result-view { display: none; }
+        
+        body.readonly .edit-view { display: none; }
+        body.readonly .result-view { display: block; }
+
+        /* 🕒 최상단 오른쪽 마지막 변경 날짜 표시 */
+        .last-modified {
+            text-align: right;
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 5px;
+        }
+
+        /* 👑 타이틀 (가장 큰 글씨) 및 수정 버튼 상자 */
+        .title-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            border-bottom: 1px solid #bbb;
+            padding-bottom: 8px;
+            margin-bottom: 10px;
+        }
+        .wiki-title { 
+            font-size: 36px; 
+            font-weight: bold; 
+            line-height: 1.2;
+            flex-grow: 1;
+        }
+        .wiki-title input {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        /* 🔒 제목 옆 우측 정렬 수정 버튼 */
+        .edit-btn-box {
+            margin-left: 15px;
+            margin-bottom: 5px;
+        }
+        .btn-mini-edit {
+            background-color: #eee;
+            color: #555;
+            border: 1px solid #ccc;
+            padding: 4px 10px;
+            font-size: 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-mini-edit:hover { background-color: #ddd; }
+
+        /* 분류 박스 */
+        .wiki-category-box { border: 1px solid #ccc; background: #fdfdfd; padding: 6px 10px; font-size: 13px; margin-bottom: 20px; }
+        .wiki-category-box a { color: #0275d8; text-decoration: none; }
+
+        /* 🎨 캐릭터 프로필 인포박스 */
+        :root {
+            --theme-color: #008080; 
+        }
+        .infobox-frame { border: 2px solid var(--theme-color); padding: 3px; background-color: #ffffff; margin-bottom: 25px; width: 100%; }
+        .infobox { width: 100%; border: 1px solid #dbdbdb; border-collapse: collapse; font-size: 14px; }
+        .infobox th, .infobox td { border: 1px solid #dbdbdb; padding: 9px; }
+        .infobox .title-cell { background-color: var(--theme-color); color: #ffffff; padding: 12px; text-align: center; }
+        
+        /* 👥 이름 칸 분할 레이아웃 */
+        .name-container { display: block; width: 100%; text-align: center; }
+        .name-main { font-size: 22px; font-weight: bold; margin-bottom: 3px; }
+        .name-sub { font-size: 12px; opacity: 0.85; line-height: 1.3; }
+
+        .infobox .image-cell { text-align: center; padding: 15px; }
+        .infobox .image-cell img { max-width: 100%; height: auto; display: block; margin: 0 auto; max-height: 300px; }
+        .infobox .attr-name { background-color: #f5fafd; color: #444; font-weight: bold; width: 30%; text-align: center; }
+
+        /* 안내 및 설정 패널 */
+        .guide-box { background: #f8f9fa; border: 1px dashed #ccc; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; }
+        .guide-box label { font-weight: bold; margin-right: 10px; }
+        input[type="color"] { vertical-align: middle; width: 40px; height: 30px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
+        .pwd-input-group { display: inline-block; margin-left: 15px; }
+        .pwd-input-group input { width: 120px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; }
+
+        /* 목차 박스 스타일 */
+        .toc-container { border: 1px solid #ccc; background: #fdfdfd; padding: 14px; display: inline-block; min-width: 280px; margin-bottom: 25px; font-size: 14px; }
+        .toc-header { font-size: 16px; margin-bottom: 8px; font-weight: bold; }
+        .toc-list { list-style: none; }
+        .toc-list li { margin-bottom: 4px; }
+        .toc-num { color: #0275d8; font-weight: bold; margin-right: 5px; }
+        .toc-sub { padding-left: 18px; }
+
+        /* 입력 폼 스타일 */
+        input[type="text"], textarea {
+            width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; margin-bottom: 8px;
+        }
+        textarea { height: 120px; resize: none; }
+        .spoiler-checkbox-label { font-size: 13px; color: #d9534f; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; cursor: pointer; }
+
+        /* 본문 및 스포일러 박스 스타일 */
+        .quote-box { border: 1px solid #ccc; border-left: 5px solid var(--theme-color); background-color: #f5fafd; padding: 15px; margin: 15px 0 20px 0; }
+        .wiki-section { margin-top: 30px; }
+        .wiki-section h2 { font-size: 24px; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 12px; }
+        .wiki-section h3 { font-size: 19px; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
+        .wiki-text-p { margin-bottom: 14px; text-align: justify; font-size: 14.5px; white-space: pre-wrap; }
+
+        .spoiler-box { border: 1px solid #dbdbdb; margin: 10px 0 15px 0; width: 100%; border-collapse: collapse; font-size: 14px; }
+        .spoiler-header { background-color: #373a3c; color: #fff; padding: 8px 12px; font-weight: bold; text-align: center; font-size: 13px; }
+        .spoiler-toggle-btn { color: #5bc0de; text-decoration: none; margin-left: 10px; cursor: pointer; font-size: 12px; }
+        .spoiler-content { display: none; padding: 12px; background: #fff; border-top: 1px solid #dbdbdb; text-align: justify; }
+
+        /* 드래그 레이어 스타일 */
+        .dynamic-form-item { 
+            background: #fff; border: 2px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 6px; 
+            position: relative; cursor: grab; user-select: none;
+        }
+        .dynamic-form-item.dragging { opacity: 0.5; background: #f0fdf4; border-color: #28a745; }
+        .drag-header-bar { display: flex; justify-content: space-between; align-items: center; background: #eee; padding: 4px 8px; margin-bottom: 8px; border-radius: 4px; }
+        .drag-handle { font-size: 12px; color: #777; font-weight: bold; cursor: grab; flex-grow: 1; }
+        .btn-delete-section { background: #d9534f; color: white; border: none; padding: 2px 8px; font-size: 11px; font-weight: bold; border-radius: 3px; cursor: pointer; }
+
+        /* 버튼 바 */
+        .btn-container { margin-top: 30px; padding: 20px 0; border-top: 1px solid #ccc; text-align: center; }
+        .btn { background-color: var(--theme-color); color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin: 5px; }
+        .btn-share { background-color: #28a745; }
+        .btn-reset { background-color: #6c757d; }
+        .btn-add { background-color: #007bff; font-size: 13px; padding: 6px 12px; }
+
+        /* 각주 */
+        .footnote { color: #0275d8; font-size: 11px; vertical-align: super; cursor: pointer; font-weight: bold; padding: 0 1px; }
+        .footnote-popup { display: none; position: absolute; background: #373a3c; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<div class="wiki-container">
+    <div id="view-date" class="last-modified result-view"></div>
+
+    <div class="title-area">
+        <h1 class="wiki-title">
+            <div class="edit-view"><input type="text" id="input-title" placeholder="문서 제목을 입력하세요 (가장 큰 글씨)"></div>
+            <span id="view-title" class="result-view">제목 없음</span>
+        </h1>
+        <div class="edit-btn-box result-view">
+            <button class="btn-mini-edit" onclick="checkPasswordToEdit()">수정</button>
+        </div>
+    </div>
+
+    <div class="wiki-category-box">
+        <span>분류</span>: 
+        <span class="edit-view" style="display:inline-block; width: 85%; vertical-align: middle;">
+            <input type="text" id="input-category" placeholder="예: 장르명/등장인물">
+        </span>
+        <span id="view-category" class="result-view"></span>
+    </div>
+
+    <div class="guide-box edit-view">
+        <div style="margin-bottom: 8px;">
+            <label for="input-color">🎨 테마 색상 선택:</label>
+            <input type="color" id="input-color" value="#008080" onchange="updateThemeColor(this.value)">
+            
+            <div class="pwd-input-group">
+                <label for="input-password">🔑 문서 비밀번호:</label>
+                <input type="text" id="input-password" placeholder="수정용 암호 설정" maxlength="12">
+            </div>
+        </div>
+        <div style="line-height: 1.5; color: #555;">
+            💡 <b>문단 가이드:</b> 기본 문단 외에 추가로 필요한 문단은 아래 <b>[➕ 문단 추가하기]</b> 버튼으로 언제든지 무한 확장할 수 있습니다.
+        </div>
+    </div>
+
+    <div class="infobox-frame">
+        <table class="infobox">
+            <tr>
+                <th colspan="2" class="title-cell">
+                    <div class="edit-view">
+                        <input type="text" id="input-name-main" placeholder="큰 글씨 한글 이름 명시 (예: 홍길동)">
+                        <input type="text" id="input-name-sub" placeholder="작은 글씨 표기 칸 (예: 한자 표기, 히라가나 발음, 영어 표기 등)">
+                    </div>
+                    <div class="result-view name-container">
+                        <div id="info-name-main" class="name-main"></div>
+                        <div id="info-name-sub" class="name-sub"></div>
+                    </div>
+                </th>
+            </tr>
+            <tr>
+                <td colspan="2" class="image-cell">
+                    <div class="edit-view"><input type="text" id="input-img" placeholder="이미지 주소(URL)"></div>
+                    <div class="result-view"><img id="info-img" src="" alt="프로필 이미지" onerror="this.style.display='none';"></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="attr-name">본명</td>
+                <td>
+                    <div class="edit-view"><input type="text" id="input-realname"></div>
+                    <div id="info-realname" class="result-view"></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="attr-name">성별</td>
+                <td>
+                    <div class="edit-view"><input type="text" id="input-gender"></div>
+                    <div id="info-gender" class="result-view"></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="attr-name">취미</td>
+                <td>
+                    <div class="edit-view"><input type="text" id="input-hobby"></div>
+                    <div id="info-hobby" class="result-view"></div>
+                </td>
+            </tr>
+            <tr>
+                <td class="attr-name">나이</td>
+                <td>
+                    <div class="edit-view"><input type="text" id="input-age"></div>
+                    <div id="info-age" class="result-view"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="toc-container result-view">
+        <div class="toc-header">목차</div>
+        <ul id="view-toc" class="toc-list"></ul>
+    </div>
+
+    <div class="wiki-section" style="margin-top:0;">
+        <h2 class="result-view">1. 개요</h2>
+        <div class="quote-box">
+            <div class="edit-view"><input type="text" id="input-quote" placeholder="명대사나 소개 인용구"></div>
+            <div id="info-quote" class="result-view" style="font-weight: bold;"></div>
+        </div>
+        <div class="edit-view">
+            <input type="hidden" id="input-section-title-1" value="개요">
+            <textarea id="input-section-body-1" placeholder="1. 개요 내용을 입력하세요."></textarea>
+            <label class="spoiler-checkbox-label">
+                <input type="checkbox" id="input-section-spoiler-1"> ⚠️ 이 문단에 스포일러 주의 틀 씌우기
+            </label>
+        </div>
+        <div id="info-section-content-1" class="result-view"></div>
+    </div>
+
+    <div class="edit-view" style="margin-top: 20px;">
+        <h3 style="font-size:16px; margin-bottom:10px; color:#333;">📝 추가 문단 작성창 (순서 변경 및 삭제 가능)</h3>
+        <div id="dynamic-form-container">
+            <div class="dynamic-form-item" draggable="true">
+                <div class="drag-header-bar">
+                    <div class="drag-handle">☰ 여기를 눌러 위아래로 드래그</div>
+                    <button class="btn-delete-section" onclick="deleteSection(this)">삭제</button>
+                </div>
+                <input type="text" class="section-title-input" placeholder="문단 제목" value="특징">
+                <textarea class="section-body-input" placeholder="내용을 입력하세요. 하위 항목은 제목 앞에 '소제목:' 이라고 적으세요."></textarea>
+                <label class="spoiler-checkbox-label"><input type="checkbox" class="section-spoiler-input"> ⚠️ 이 문단에 스포일러 주의 틀 씌우기</label>
+            </div>
+            <div class="dynamic-form-item" draggable="true">
+                <div class="drag-header-bar">
+                    <div class="drag-handle">☰ 여기를 눌러 위아래로 드래그</div>
+                    <button class="btn-delete-section" onclick="deleteSection(this)">삭제</button>
+                </div>
+                <input type="text" class="section-title-input" placeholder="문단 제목" value="작중 행적">
+                <textarea class="section-body-input" placeholder="내용을 입력하세요."></textarea>
+                <label class="spoiler-checkbox-label"><input type="checkbox" class="section-spoiler-input"> ⚠️ 이 문단에 스포일러 주의 틀 씌우기</label>
+            </div>
+            <div class="dynamic-form-item" draggable="true">
+                <div class="drag-header-bar">
+                    <div class="drag-handle">☰ 여기를 눌러 위아래로 드래그</div>
+                    <button class="btn-delete-section" onclick="deleteSection(this)">삭제</button>
+                </div>
+                <input type="text" class="section-title-input" placeholder="문단 제목" value="기타">
+                <textarea class="section-body-input" placeholder="내용을 입력하세요."></textarea>
+                <label class="spoiler-checkbox-label"><input type="checkbox" class="section-spoiler-input"> ⚠️ 이 문단에 스포일러 주의 틀 씌우기</label>
+            </div>
+        </div>
+        <button class="btn btn-add" onclick="addFormItem()">➕ 문단 추가하기</button>
+    </div>
+
+    <div id="dynamic-result-container" class="result-view"></div>
+
+    <div class="btn-container">
+        <button class="btn edit-view" onclick="generateLink()">완료 및 공유 링크 생성</button>
+        <div class="result-view">
+            <p style="margin-bottom: 10px; color: #28a745; font-weight: bold;">🎉 생성이 완료되었습니다!</p>
+            <button class="btn btn-share" onclick="copyToClipboard()">🔗 주소 복사하기</button>
+            <button class="btn btn-reset" onclick="location.href=window.location.pathname">➕ 새로 만들기</button>
+        </div>
+    </div>
+</div>
+
+<div id="popup" class="footnote-popup"></div>
+
+<script>
+    let footnoteCount = 1;
+    let savedPasswordHash = "";
+
+    function updateThemeColor(color) {
+        document.documentElement.style.setProperty('--theme-color', color);
+    }
+
+    function deleteSection(btn) {
+        if(confirm("이 문단을 정말 삭제하시겠습니까?")) {
+            btn.closest('.dynamic-form-item').remove();
+        }
+    }
+
+    function addFormItem(title = "", body = "", isSpoiler = false) {
+        const container = document.getElementById('dynamic-form-container');
+        const div = document.createElement('div');
+        div.className = 'dynamic-form-item';
+        div.draggable = true;
+        div.innerHTML = `
+            <div class="drag-header-bar">
+                <div class="drag-handle">☰ 여기를 눌러 위아래로 드래그</div>
+                <button class="btn-delete-section" onclick="deleteSection(this)">삭제</button>
+            </div>
+            <input type="text" class="section-title-input" placeholder="문단 제목" value="${title}">
+            <textarea class="section-body-input" placeholder="내용을 입력하세요.">${body}</textarea>
+            <label class="spoiler-checkbox-label"><input type="checkbox" class="section-spoiler-input" ${isSpoiler ? 'checked' : ''}> ⚠️ 이 문단에 스포일러 주의 틀 씌우기</label>
+        `;
+        container.appendChild(div);
+        bindDragEvents(div);
+    }
+
+    function parseFootnotes(text) {
+        return text.replace(/\[(.*?)\]/g, function(match, p1) {
+            const html = `<span class="footnote" onclick="showPopup(event, '${p1.replace(/'/g, "\\'")}')">[${footnoteCount}]</span>`;
+            footnoteCount++;
+            return html;
+        });
+    }
+
+    function buildSpoilerHtml(contentHtml) {
+        return `
+            <table class="spoiler-box">
+                <tr>
+                    <th class="spoiler-header">
+                        ⚠️ 스포일러 주의! 이 문단은 작품의 핵심 내용을 포함하고 있습니다.
+                        <span class="spoiler-toggle-btn" onclick="toggleSpoiler(this)">[ 펼치기 · 접기 ]</span>
+                    </th>
+                </tr>
+                <tr>
+                    <td class="spoiler-content">${contentHtml}</td>
+                </tr>
+            </table>
+        `;
+    }
+
+    function toggleSpoiler(btn) {
+        const contentTd = btn.closest('.spoiler-box').querySelector('.spoiler-content');
+        contentTd.style.display = contentTd.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // 드래그 기능 엔진
+    function bindDragEvents(item) {
+        const handle = item.querySelector('.drag-handle');
+        item.addEventListener('dragstart', () => item.classList.add('dragging'));
+        item.addEventListener('dragend', () => item.classList.remove('dragging'));
+
+        let activeItem = null;
+        handle.addEventListener('touchstart', (e) => { activeItem = item; item.classList.add('dragging'); }, {passive: true});
+        handle.addEventListener('touchmove', (e) => {
+            if (!activeItem) return;
+            const touch = e.touches[0];
+            const container = document.getElementById('dynamic-form-container');
+            const afterElement = getDragAfterElement(container, touch.clientY);
+            if (afterElement == null) container.appendChild(activeItem);
+            else container.insertBefore(activeItem, afterElement);
+        }, {passive: true});
+        handle.addEventListener('touchend', () => { if (activeItem) { activeItem.classList.remove('dragging'); activeItem = null; } });
+    }
+
+    const container = document.getElementById('dynamic-form-container');
+    container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(container, e.clientY);
+        const dragging = document.querySelector('.dragging');
+        if (dragging) {
+            if (afterElement == null) container.appendChild(dragging);
+            else container.insertBefore(dragging, afterElement);
+        }
+    });
+
+    function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.dynamic-form-item:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = y - box.top - box.height / 2;
+            if (offset < 0 && offset > closest.offset) return { offset: offset, element: child };
+            else return closest;
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+    document.querySelectorAll('.dynamic-form-item').forEach(bindDragEvents);
+
+    // 🔒 암호 인증 로직
+    function checkPasswordToEdit() {
+        const inputPwd = prompt("문서를 수정하려면 설정했던 비밀번호를 입력하세요:");
+        if (!inputPwd) return;
+        
+        if (btoa(encodeURIComponent(inputPwd)) === savedPasswordHash || inputPwd === savedPasswordHash) {
+            alert("비밀번호가 일치합니다. 수정 모드로 전환합니다.");
+            document.body.classList.remove('readonly');
+        } else {
+            alert("비밀번호가 일치하지 않습니다. 수정할 수 없습니다.");
+        }
+    }
+
+    window.onload = function() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('title')) {
+            document.body.classList.add('readonly');
+            
+            const themeColor = params.get('color') || '#008080';
+            updateThemeColor(themeColor);
+            
+            savedPasswordHash = params.get('pwd') || "";
+            document.getElementById('input-password').value = decodeURIComponent(atob(savedPasswordHash));
+
+            document.getElementById('input-title').value = params.get('title');
+            document.getElementById('view-title').innerText = params.get('title');
+            
+            document.getElementById('input-category').value = params.get('category') || '';
+            document.getElementById('view-category').innerText = params.get('category') || '';
+            
+            document.getElementById('view-date').innerText = `최근 수정 시각: ${params.get('date') || '-'}`;
+
+            const nMain = params.get('n_main') || '';
+            const nSub = params.get('n_sub') || '';
+            document.getElementById('input-name-main').value = nMain;
+            document.getElementById('input-name-sub').value = nSub;
+            document.getElementById('info-name-main').innerText = nMain;
+            document.getElementById('info-name-sub').innerText = nSub;
+
+            document.getElementById('input-img').value = params.get('img') || '';
+            document.getElementById('input-realname').value = params.get('realname') || '';
+            document.getElementById('info-realname').innerText = params.get('realname') || '-';
+            document.getElementById('input-gender').value = params.get('gender') || '';
+            document.getElementById('info-gender').innerText = params.get('gender') || '-';
+            document.getElementById('input-hobby').value = params.get('hobby') || '';
+            document.getElementById('info-hobby').innerText = params.get('hobby') || '-';
+            document.getElementById('input-age').value = params.get('age') || '';
+            document.getElementById('info-age').innerText = params.get('age') || '-';
+            document.getElementById('input-quote').value = params.get('quote') || '';
+            document.getElementById('info-quote').innerText = params.get('quote') || '';
+            
+            footnoteCount = 1; 
+
+            const baseDesc = params.get('body_1') || '';
+            document.getElementById('input-section-body-1').value = baseDesc;
+            document.getElementById('input-section-spoiler-1').checked = params.get('sp_1') === 'y';
+            
+            const baseParsedHtml = `<p class="wiki-text-p">${parseFootnotes(baseDesc)}</p>`;
+            document.getElementById('info-section-content-1').innerHTML = (params.get('sp_1') === 'y') ? buildSpoilerHtml(baseParsedHtml) : baseParsedHtml;
+
+            const titles = params.getAll('sec_title');
+            const bodies = params.getAll('sec_body');
+            const spoilers = params.getAll('sec_spoiler');
+            
+            document.getElementById('dynamic-form-container').innerHTML = "";
+            
+            const tocTarget = document.getElementById('view-toc');
+            const resultContainer = document.getElementById('dynamic-result-container');
+            resultContainer.innerHTML = "";
+            
+            let currentMainNum = 1;
+            let currentSubNum = 0;
+            
+            const liBase = document.createElement('li');
+            liBase.innerHTML = `<span class="toc-num">1.</span>개요`;
+            tocTarget.appendChild(liBase);
+            
+            titles.forEach((title, i) => {
+                const bodyText = bodies[i] || '';
+                const isSp = spoilers[i] === 'y';
+                
+                addFormItem(title, bodyText, isSp);
+
+                if (!title.trim()) return;
+
+                const li = document.createElement('li');
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'wiki-section';
+
+                let innerContentHtml = `<p class="wiki-text-p">${parseFootnotes(bodyText)}</p>`;
+                if (isSp) innerContentHtml = buildSpoilerHtml(innerContentHtml);
+
+                if (title.startsWith('소제목:')) {
+                    currentSubNum++;
+                    const cleanTitle = title.replace('소제목:', '').trim();
+                    const numStr = `${currentMainNum}.${currentSubNum}`;
+                    li.className = 'toc-sub';
+                    li.innerHTML = `<span class="toc-num">${numStr}.</span>${cleanTitle}`;
+                    sectionDiv.innerHTML = `<h3>${numStr}. ${cleanTitle}</h3><div>${innerContentHtml}</div>`;
+                } else {
+                    currentMainNum++;
+                    currentSubNum = 0;
+                    const numStr = `${currentMainNum}`;
+                    li.innerHTML = `<span class="toc-num">${numStr}.</span>${title}`;
+                    sectionDiv.innerHTML = `<h2>${numStr}. ${title}</h2><div>${innerContentHtml}</div>`;
+                }
+                
+                tocTarget.appendChild(li);
+                resultContainer.appendChild(sectionDiv);
+            });
+            
+            if (params.get('img')) {
+                document.getElementById('info-img').src = params.get('img');
+                document.getElementById('info-img').style.display = 'block';
+            }
+        }
+    };
+
+    function generateLink() {
+        const title = document.getElementById('input-title').value.trim();
+        if (!title) { alert('문서 제목은 필수입니다!'); return; }
+
+        const rawPwd = document.getElementById('input-password').value.trim();
+        if (!rawPwd) { alert('문서 수정을 위해 비밀번호를 반드시 입력해 주세요!'); return; }
+
+        const params = new URLSearchParams();
+        params.set('title', title);
+        params.set('category', document.getElementById('input-category').value.trim());
+        params.set('color', document.getElementById('input-color').value);
+        
+        params.set('pwd', btoa(encodeURIComponent(rawPwd)));
+
+        const now = new Date();
+        const formattedDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+        params.set('date', formattedDate);
+
+        params.set('n_main', document.getElementById('input-name-main').value.trim());
+        params.set('n_sub', document.getElementById('input-name-sub').value.trim());
+
+        params.set('img', document.getElementById('input-img').value.trim());
+        params.set('realname', document.getElementById('input-realname').value.trim());
+        params.set('gender', document.getElementById('input-gender').value.trim());
+        params.set('hobby', document.getElementById('input-hobby').value.trim());
+        params.set('age', document.getElementById('input-age').value.trim());
+        params.set('quote', document.getElementById('input-quote').value.trim());
+        
+        params.set('body_1', document.getElementById('input-section-body-1').value);
+        params.set('sp_1', document.getElementById('input-section-spoiler-1').checked ? 'y' : 'n');
+
+        const currentItems = document.querySelectorAll('.dynamic-form-item');
+        currentItems.forEach((item) => {
+            const titleVal = item.querySelector('.section-title-input').value.trim();
+            const bodyVal = item.querySelector('.section-body-input').value;
+            const spoilerVal = item.querySelector('.section-spoiler-input').checked ? 'y' : 'n';
+            if (titleVal) {
+                params.append('sec_title', titleVal);
+                params.append('sec_body', bodyVal);
+                params.append('sec_spoiler', spoilerVal);
+            }
+        });
+
+        window.location.href = window.location.origin + window.location.pathname + '?' + params.toString();
+    }
+
+    function copyToClipboard() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('링크가 복사되었습니다!');
+        }).catch(() => {
+            alert('주소창의 링크를 직접 복사해주세요.');
+        });
+    }
+
+    function showPopup(event, text) {
+        event.stopPropagation(); 
+        var popup = document.getElementById("popup");
+        popup.innerText = text;
+        popup.style.display = "block";
+        popup.style.left = (event.pageX + 10) + "px";
+        popup.style.top = (event.pageY + 10) + "px";
+    }
+    document.addEventListener("click", function() { document.getElementById("popup").style.display = "none"; });
+</script>
+
+</body>
+</html>
