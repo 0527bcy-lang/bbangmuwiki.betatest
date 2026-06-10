@@ -92,16 +92,16 @@
         .infobox .image-cell { text-align: center; padding: 15px; }
         .infobox .image-cell img { max-width: 100%; height: auto; display: block; margin: 0 auto; max-height: 300px; object-fit: contain; }
         
-        /* 📐 왼쪽 속성 칸 크기 30% 절대 통일 및 고정 */
+        /* 📐 왼쪽과 오른쪽 칸의 비율을 정확히 50:50으로 절대 고정 */
         .infobox .attr-name { 
             background-color: var(--theme-color); 
             color: #ffffff; 
             font-weight: bold; 
-            width: 30% !important; 
+            width: 50% !important; 
             text-align: center; 
         }
         .infobox td:not(.attr-name):not(.image-cell) {
-            width: 70% !important;
+            width: 50% !important;
         }
 
         /* 인포박스 동적 아이템 스타일 */
@@ -360,7 +360,7 @@
         }
     }
 
-    // 주소 방식 이미지 실시간 연동 강화
+    // 주소 방식 이미지 동적 연동 보완
     function updateImagePreview(url) {
         imageUrlStr = url.trim();
         const imgEl = document.getElementById('info-img');
@@ -529,7 +529,11 @@
 
             document.getElementById('input-title').value = data.title;
             document.getElementById('view-title').innerText = data.title;
-            document.getElementById('view-category').innerText = data.category || '';
+            
+            // 🏷️ 분류 칸 오류 완벽 수정: 입력 상자 감추고 순수 글자 텍스트만 출력
+            document.getElementById('input-category').value = data.category || '';
+            document.getElementById('view-category').innerText = data.category || '없음';
+            
             document.getElementById('view-date').innerText = `최근 수정 시각: ${data.date || '-'}`;
 
             document.getElementById('info-name-main').innerText = data.n_main || '';
@@ -552,7 +556,7 @@
             const baseParsedHtml = `<p class="wiki-text-p">${parseFootnotes(data.body_1 || '')}</p>`;
             document.getElementById('info-section-content-1').innerHTML = (data.sp_1 === 'y') ? buildSpoilerHtml(baseParsedHtml) : baseParsedHtml;
 
-            // 추가 프로필 커스텀 복원 (30% 대칭 규격 강제 통일)
+            // 추가 프로필 커스텀 복원 (📐 50:50 대칭 완벽 규격 강제 통일)
             if(data.customs) {
                 const tbody = document.getElementById('infobox-tbody');
                 data.customs.forEach(c => {
@@ -618,7 +622,7 @@
     };
 
     function copyToClipboard() {
-        navigator.clipboard.writeText(window.location.href).then(() => alert('보안 연동 및 목차 이동 기능이 완료된 공유 주소가 복사되었습니다!'));
+        navigator.clipboard.writeText(window.location.href).then(() => alert('비율 고정 및 분류창 패치가 반영된 공유 주소가 복사되었습니다!'));
     }
 
     function showPopup(event, text) {
