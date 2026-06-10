@@ -13,7 +13,7 @@
             color: #373a3c;
             background-color: #ffffff;
             padding: 15px;
-            scroll-behavior: smooth; /* 목차 이동 시 부드럽게 스크롤 */
+            scroll-behavior: smooth;
         }
         .wiki-container { max-width: 768px; margin: 0 auto; position: relative; }
         
@@ -21,8 +21,9 @@
         .edit-view { display: block; }
         .result-view { display: none; }
         
-        body.readonly .edit-view { display: none; }
-        body.readonly .result-view { display: block; }
+        body.readonly .edit-view { display: none !important; }
+        body.readonly .result-view { display: block !important; }
+        body.readonly tr.result-view { display: table-row !important; }
 
         /* 🕒 최상단 오른쪽 마지막 변경 날짜 표시 */
         .last-modified {
@@ -72,8 +73,6 @@
         /* 🏷️ 파란색 단일 분류 스타일 */
         .wiki-category-box { border: 1px solid #ccc; background: #fdfdfd; padding: 4px 10px; font-size: 12px; margin-bottom: 20px; }
         .wiki-category-box .cat-label { font-weight: bold; }
-        .wiki-category-link { color: #0275d8; text-decoration: none; }
-        .wiki-category-link:hover { text-decoration: underline; }
 
         /* 🎨 캐릭터 프로필 인포박스 */
         :root {
@@ -81,7 +80,7 @@
         }
         .infobox-frame { border: 2px solid var(--theme-color); padding: 3px; background-color: #ffffff; margin-bottom: 25px; width: 100%; }
         .infobox { width: 100%; border: 1px solid #dbdbdb; border-collapse: collapse; font-size: 14px; table-layout: fixed; }
-        .infobox th, .infobox td { border: 1px solid #dbdbdb; padding: 9px; word-break: break-all; }
+        .infobox th, .infobox td { border: 1px solid #dbdbdb; padding: 9px; word-break: break-all; vertical-align: middle; }
         .infobox .title-cell { background-color: var(--theme-color); color: #ffffff; padding: 12px; text-align: center; }
         
         /* 이름 칸 레이아웃 */
@@ -134,12 +133,11 @@
 
         /* 인용구 및 본문 문단 */
         .quote-box { border: 1px solid #ccc; border-left: 5px solid var(--theme-color); background-color: #f5fafd; padding: 15px; margin: 15px 0 20px 0; }
-        .wiki-section { margin-top: 30px; scroll-margin-top: 20px; /* 이동 시 상단 여백 확보 */ }
+        .wiki-section { margin-top: 30px; scroll-margin-top: 20px; }
         .wiki-section h2 { font-size: 24px; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 12px; }
         .wiki-section h3 { font-size: 19px; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
         .wiki-text-p { margin-bottom: 14px; text-align: justify; font-size: 14.5px; white-space: pre-wrap; }
 
-        /* 하이픈 스타일링 전용 */
         .wiki-text-p.etc-p { padding-left: 15px; text-indent: -15px; }
 
         .spoiler-box { border: 1px solid #dbdbdb; margin: 10px 0 15px 0; width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -230,9 +228,9 @@
                     <td colspan="2" class="image-cell">
                         <div class="edit-view">
                             <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">🖼️ 프로필 이미지 주소(URL) 입력:</label>
-                            <input type="text" id="input-img-url" placeholder="https://... 형태의 이미지 링크 주소를 입력하세요" onchange="updateImagePreview(this.value)" onkeyup="if(window.event.keyCode==13){updateImagePreview(this.value)}">
+                            <input type="text" id="input-img-url" placeholder="https://... 형태의 이미지 링크 주소를 입력하세요" onchange="updateImagePreview(this.value)">
                         </div>
-                        <div><img id="info-img" src="" alt="프로필 이미지" onerror="this.style.display='none';"></div>
+                        <div><img id="info-img" src="" alt="프로필 이미지" style="display:none;"></div>
                     </td>
                 </tr>
                 <tr>
@@ -360,11 +358,11 @@
         }
     }
 
-    // 주소 방식 이미지 동적 연동 보완
     function updateImagePreview(url) {
+        if(!url) return;
         imageUrlStr = url.trim();
         const imgEl = document.getElementById('info-img');
-        if(imageUrlStr) {
+        if(imageUrlStr !== "") {
             imgEl.src = imageUrlStr;
             imgEl.style.display = 'block';
         } else {
@@ -450,7 +448,6 @@
         if (dragging) container.appendChild(dragging);
     });
 
-    // 🔒 외부 무단 수정 완벽 잠금 제어 시스템
     function setInputsDisabled(status) {
         const selector = "input, textarea, select, button:not(.btn-mini-edit):not(.btn-share):not(.btn-reset)";
         document.querySelectorAll(selector).forEach(el => {
@@ -463,7 +460,7 @@
         if (btoa(encodeURIComponent(inputPwd)) === savedPasswordHash) {
             alert("인증 성공! 수정 모드로 전환됩니다.");
             document.body.classList.remove('readonly');
-            setInputsDisabled(false); // 잠금 해제
+            setInputsDisabled(false);
         } else {
             alert("비밀번호가 일치하지 않습니다. 수정할 수 없습니다.");
         }
@@ -481,7 +478,7 @@
             date: new Date().toLocaleString(),
             n_main: document.getElementById('input-name-main').value.trim(),
             n_sub: document.getElementById('input-name-sub').value.trim(),
-            img: imageUrlStr, 
+            img: document.getElementById('input-img-url').value.trim(), 
             realname: document.getElementById('input-realname').value.trim(),
             gender: document.getElementById('input-gender').value.trim(),
             hobby: document.getElementById('input-hobby').value.trim(),
@@ -517,7 +514,7 @@
         const params = new URLSearchParams(window.location.search);
         if (params.has('d')) {
             document.body.classList.add('readonly');
-            setInputsDisabled(true); // 🔒 무단 수정 방지 전체 필드 즉시 잠금
+            setInputsDisabled(true); 
             
             const compressedData = params.get('d');
             const jsonStr = LZString.decompressFromEncodedURIComponent(compressedData);
@@ -530,7 +527,6 @@
             document.getElementById('input-title').value = data.title;
             document.getElementById('view-title').innerText = data.title;
             
-            // 🏷️ 분류 칸 오류 완벽 수정: 입력 상자 감추고 순수 글자 텍스트만 출력
             document.getElementById('input-category').value = data.category || '';
             document.getElementById('view-category').innerText = data.category || '없음';
             
@@ -539,10 +535,13 @@
             document.getElementById('info-name-main').innerText = data.n_main || '';
             document.getElementById('info-name-sub').innerText = data.n_sub || '';
 
+            // 🖼️ 이미지 강제 출력 보장 처리
             if (data.img) {
                 imageUrlStr = data.img;
                 document.getElementById('input-img-url').value = imageUrlStr;
-                updateImagePreview(imageUrlStr);
+                const imgEl = document.getElementById('info-img');
+                imgEl.src = imageUrlStr;
+                imgEl.style.display = 'block';
             }
 
             document.getElementById('info-realname').innerText = data.realname || '-';
@@ -551,12 +550,11 @@
             document.getElementById('info-age').innerText = data.age || '-';
             document.getElementById('info-quote').innerText = data.quote || '';
             
-            // 1. 개요 복원
             document.getElementById('input-section-body-1').value = data.body_1 || '';
             const baseParsedHtml = `<p class="wiki-text-p">${parseFootnotes(data.body_1 || '')}</p>`;
             document.getElementById('info-section-content-1').innerHTML = (data.sp_1 === 'y') ? buildSpoilerHtml(baseParsedHtml) : baseParsedHtml;
 
-            // 추가 프로필 커스텀 복원 (📐 50:50 대칭 완벽 규격 강제 통일)
+            // 추가 프로필 커스텀 복원 (📐 attr-name 클래스 주입으로 50:50 대칭 강제 보장)
             if(data.customs) {
                 const tbody = document.getElementById('infobox-tbody');
                 data.customs.forEach(c => {
@@ -568,7 +566,6 @@
                 });
             }
 
-            // 목차 및 동적 이동(앵커) 처리
             const tocTarget = document.getElementById('view-toc');
             const resultContainer = document.getElementById('dynamic-result-container');
             
@@ -590,7 +587,7 @@
 
                     const sectionDiv = document.createElement('div');
                     sectionDiv.className = 'wiki-section';
-                    sectionDiv.id = currentId; // 앵커 타겟팅 매핑
+                    sectionDiv.id = currentId; 
                     let innerContentHtml = `<p class="wiki-text-p">${parseFootnotes(sec.b || '')}</p>`;
                     if (sec.s === 'y') innerContentHtml = buildSpoilerHtml(innerContentHtml);
                     sectionDiv.innerHTML = `<h2>${i+2}. ${sec.t}</h2><div>${innerContentHtml}</div>`;
@@ -600,7 +597,6 @@
                 });
             }
 
-            // 📌 [기타 복원] 무조건 최하단 순서 보장 및 앵커 매핑
             totalSectionsNum++;
             document.getElementById('input-etc-body').value = data.body_etc || '';
             document.getElementById('input-etc-spoiler').checked = (data.sp_etc === 'y');
