@@ -215,12 +215,12 @@
             </thead>
             <tbody id="infobox-tbody">
                 <tr>
-                    <td colspan="2" class="image-cell" id="photo-box-td">
+                    <td colspan="2" class="image-cell">
                         <div class="edit-view">
                             <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">🖼️ 프로필 이미지 주소(URL) 입력:</label>
                             <input type="text" id="input-img-url" placeholder="https://... 형태의 이미지 링크 주소를 입력하세요" onchange="updateImagePreview(this.value)">
                         </div>
-                        <div id="img-wrapper"></div>
+                        <div><img id="info-img" src="" alt="프로필 이미지" style="display:none; max-width:100%; height:auto; margin:0 auto; max-height:300px; object-fit:contain;"></div>
                     </td>
                 </tr>
                 <tr>
@@ -347,24 +347,16 @@
         }
     }
 
-    // 🖼️ 완벽한 엑스박스 잔상 제거 및 이미지 렌더링 엔진
+    // 🖼️ 이미지 노출 상태 수동 제어 엔진
     function updateImagePreview(url) {
-        const wrapper = document.getElementById('img-wrapper');
-        wrapper.innerHTML = ""; 
-        if(!url || url.trim() === "") return;
-
-        const cleanUrl = url.trim();
-        const img = new Image();
-        img.src = cleanUrl;
-        img.alt = "프로필 이미지";
-        img.style.maxWidth = "100%";
-        img.style.height = "auto";
-        img.style.display = "block";
-        img.style.margin = "0 auto";
-        img.style.maxHeight = "300px";
-        img.style.objectFit = "contain";
-        
-        wrapper.appendChild(img);
+        const imgEl = document.getElementById('info-img');
+        if(!url || url.trim() === "") {
+            imgEl.style.display = 'none';
+            imgEl.src = '';
+            return;
+        }
+        imgEl.src = url.trim();
+        imgEl.style.display = 'block';
     }
 
     function addCustomAttrForm(key = "", val = "") {
@@ -507,7 +499,7 @@
         window.location.href = window.location.origin + window.location.pathname + '?d=' + compressed;
     }
 
-    // 🔒 외부 라이브러리 연동 안전성 강화 로딩 함수
+    // 🔒 타이틀 및 데이터 강제 렌더링 동기화 체인
     window.addEventListener('DOMContentLoaded', function() {
         const params = new URLSearchParams(window.location.search);
         if (params.has('d')) {
@@ -515,15 +507,10 @@
             setInputsDisabled(true); 
             
             const compressedData = params.get('d');
-            
-            // 라이브러리가 로드되지 않은 돌발 상황 방어
-            if (typeof LZString === "undefined") {
-                alert("라이브러리 로딩 중입니다. 잠시 후 새로고침해 주세요.");
-                return;
-            }
+            if (typeof LZString === "undefined") return;
 
             const jsonStr = LZString.decompressFromEncodedURIComponent(compressedData);
-            if(!jsonStr) { alert("데이터를 해독하는 데 실패했습니다."); return; }
+            if(!jsonStr) return;
             
             const data = JSON.parse(jsonStr);
             updateThemeColor(data.color || '#008080');
@@ -540,10 +527,12 @@
             document.getElementById('info-name-main').innerText = data.n_main || '';
             document.getElementById('info-name-sub').innerText = data.n_sub || '';
 
-            // 🖼️ 이미지 연동 강제 고정
-            if (data.img) {
+            // 🖼️ 동기화 핵심: 최우선 링크 바인딩 및 표시
+            if (data.img && data.img.trim() !== "") {
                 document.getElementById('input-img-url').value = data.img;
-                updateImagePreview(data.img);
+                const imgTarget = document.getElementById('info-img');
+                imgTarget.src = data.img.trim();
+                imgTarget.style.display = 'block';
             }
 
             document.getElementById('info-realname').innerText = data.realname || '-';
@@ -556,7 +545,7 @@
             const baseParsedHtml = `<p class="wiki-text-p">${parseFootnotes(data.body_1 || '')}</p>`;
             document.getElementById('info-section-content-1').innerHTML = (data.sp_1 === 'y') ? buildSpoilerHtml(baseParsedHtml) : baseParsedHtml;
 
-            // 추가 프로필 커스텀 항목 50:50 대칭 강제 보장 생성
+            // 추가 프로필 커스텀 항목 생성
             if(data.customs) {
                 const tbody = document.getElementById('infobox-tbody');
                 data.customs.forEach(c => {
@@ -620,7 +609,7 @@
     });
 
     function copyToClipboard() {
-        navigator.clipboard.writeText(window.location.href).then(() => alert('비율 고정 및 이미지 패치가 적용된 공유 주소가 복사되었습니다!'));
+        navigator.clipboard.writeText(window.location.href).then(() => alert('공유 주소가 복사되었습니다!'));
     }
 
     function showPopup(event, text) {
