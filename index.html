@@ -25,7 +25,7 @@
         body.readonly .result-view { display: block !important; }
         body.readonly tr.result-view { display: table-row !important; }
 
-        /* 🕒 최상단 오른쪽 마지막 변경 날짜 표시 */
+        /* 최상단 오른쪽 마지막 변경 날짜 */
         .last-modified {
             text-align: right;
             font-size: 11px;
@@ -33,7 +33,7 @@
             margin-bottom: 5px;
         }
 
-        /* 👑 타이틀 및 수정 버튼 상자 */
+        /* 타이틀 영역 */
         .title-area {
             display: flex;
             justify-content: space-between;
@@ -53,7 +53,6 @@
             font-weight: bold;
         }
         
-        /* 🔒 수정 버튼 */
         .edit-btn-box {
             margin-left: 15px;
             margin-bottom: 5px;
@@ -70,11 +69,11 @@
         }
         .btn-mini-edit:hover { background-color: #ddd; }
 
-        /* 🏷️ 파란색 단일 분류 스타일 */
+        /* 분류 스타일 */
         .wiki-category-box { border: 1px solid #ccc; background: #fdfdfd; padding: 4px 10px; font-size: 12px; margin-bottom: 20px; }
         .wiki-category-box .cat-label { font-weight: bold; }
 
-        /* 🎨 캐릭터 프로필 인포박스 */
+        /* 캐릭터 프로필 인포박스 */
         :root {
             --theme-color: #008080; 
         }
@@ -83,15 +82,14 @@
         .infobox th, .infobox td { border: 1px solid #dbdbdb; padding: 9px; word-break: break-all; vertical-align: middle; }
         .infobox .title-cell { background-color: var(--theme-color); color: #ffffff; padding: 12px; text-align: center; }
         
-        /* 이름 칸 레이아웃 */
         .name-container { display: block; width: 100%; text-align: center; }
         .name-main { font-size: 22px; font-weight: bold; margin-bottom: 3px; }
         .name-sub { font-size: 12px; opacity: 0.85; line-height: 1.3; }
 
-        .infobox .image-cell { text-align: center; padding: 15px; }
-        .infobox .image-cell img { max-width: 100%; height: auto; display: block; margin: 0 auto; max-height: 300px; object-fit: contain; }
+        .infobox .image-cell { text-align: center; padding: 15px; background: #fafafa; }
+        .infobox .image-cell img { max-width: 100%; height: auto; display: block; margin: 0 auto; max-height: 300px; object-fit: contain; border: 1px solid #eee; background: #fff; }
         
-        /* 📐 왼쪽과 오른쪽 칸의 비율을 정확히 50:50으로 절대 고정 */
+        /* 왼쪽 오른쪽 비율 50:50 절대 고정 */
         .infobox .attr-name { 
             background-color: var(--theme-color); 
             color: #ffffff; 
@@ -103,19 +101,17 @@
             width: 50% !important;
         }
 
-        /* 인포박스 동적 아이템 스타일 */
         .info-edit-item { background: #f9f9f9; padding: 6px; margin-bottom: 5px; border: 1px solid #ddd; border-radius: 4px; display: flex; gap: 5px; align-items: center; }
         .info-edit-item input { margin-bottom: 0 !important; }
         .btn-delete-attr { background: #d9534f; color: white; border: none; padding: 4px 8px; font-size: 11px; border-radius: 3px; cursor: pointer; }
 
-        /* 안내 패널 */
         .guide-box { background: #f8f9fa; border: 1px dashed #ccc; padding: 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; }
         .guide-box label { font-weight: bold; margin-right: 10px; }
         input[type="color"] { vertical-align: middle; width: 40px; height: 30px; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; }
         .pwd-input-group { display: inline-block; margin-left: 15px; }
         .pwd-input-group input { width: 120px; padding: 4px; font-size: 12px; border: 1px solid #ccc; border-radius: 3px; }
 
-        /* 목차 박스 */
+        /* 목차 */
         .toc-container { border: 1px solid #ccc; background: #fdfdfd; padding: 14px; display: inline-block; min-width: 280px; margin-bottom: 25px; font-size: 14px; }
         .toc-header { font-size: 16px; margin-bottom: 8px; font-weight: bold; }
         .toc-list { list-style: none; }
@@ -124,20 +120,17 @@
         .toc-list a:hover { text-decoration: underline; }
         .toc-num { font-weight: bold; margin-right: 5px; }
 
-        /* 입력창 및 업로드 */
         input[type="text"], textarea {
             width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; margin-bottom: 8px;
         }
         textarea { height: 120px; resize: none; }
         .spoiler-checkbox-label { font-size: 13px; color: #d9534f; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; cursor: pointer; }
 
-        /* 인용구 및 본문 문단 */
         .quote-box { border: 1px solid #ccc; border-left: 5px solid var(--theme-color); background-color: #f5fafd; padding: 15px; margin: 15px 0 20px 0; }
         .wiki-section { margin-top: 30px; scroll-margin-top: 20px; }
         .wiki-section h2 { font-size: 24px; border-bottom: 1px solid #ccc; padding-bottom: 3px; margin-bottom: 12px; }
         .wiki-section h3 { font-size: 19px; margin-top: 15px; margin-bottom: 8px; border-bottom: 1px dashed #eee; padding-bottom: 2px; }
         .wiki-text-p { margin-bottom: 14px; text-align: justify; font-size: 14.5px; white-space: pre-wrap; }
-
         .wiki-text-p.etc-p { padding-left: 15px; text-indent: -15px; }
 
         .spoiler-box { border: 1px solid #dbdbdb; margin: 10px 0 15px 0; width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -145,7 +138,6 @@
         .spoiler-toggle-btn { color: #5bc0de; text-decoration: none; margin-left: 10px; cursor: pointer; font-size: 12px; }
         .spoiler-content { display: none; padding: 12px; background: #fff; border-top: 1px solid #dbdbdb; text-align: justify; }
 
-        /* 드래그 폼 레이어 */
         .dynamic-form-item { 
             background: #fff; border: 2px solid #ddd; padding: 12px; margin-bottom: 12px; border-radius: 6px; 
             position: relative; cursor: grab; user-select: none;
@@ -155,7 +147,6 @@
         .drag-handle { font-size: 12px; color: #777; font-weight: bold; cursor: grab; flex-grow: 1; }
         .btn-delete-section { background: #d9534f; color: white; border: none; padding: 2px 8px; font-size: 11px; font-weight: bold; border-radius: 3px; cursor: pointer; }
 
-        /* 하단 조작 버튼 */
         .btn-container { margin-top: 30px; padding: 20px 0; border-top: 1px solid #ccc; text-align: center; }
         .btn { background-color: var(--theme-color); color: white; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin: 5px; }
         .btn-share { background-color: #28a745; }
@@ -163,7 +154,6 @@
         .btn-add { background-color: #007bff; font-size: 13px; padding: 6px 12px; }
         .btn-add-attr { background-color: #e0a800; color: #222; font-size: 12px; padding: 4px 8px; border: 1px solid #c69500; border-radius: 3px; cursor: pointer; font-weight: bold; margin-top: 5px;}
 
-        /* 각주 엔진 전용 스타일 */
         .footnote { color: #0275d8; font-size: 11px; vertical-align: super; cursor: pointer; font-weight: bold; padding: 0 1px; }
         .footnote:hover { text-decoration: underline; }
         .footnote-popup { display: none; position: absolute; background: #373a3c; color: #fff; padding: 6px 10px; border-radius: 4px; font-size: 12px; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.2); max-width: 250px; line-height: 1.4; word-break: break-all; }
@@ -203,7 +193,7 @@
             </div>
         </div>
         <div style="line-height: 1.5; color: #555;">
-            💡 <b>이미지 등록 방법:</b> 이미지를 <a href="https://ko.imgbb.com/" target="_blank" style="color:#0275d8; font-weight:bold;">[ImgBB]</a> 등에 올린 후, <b>이미지 주소</b>를 복사해 아래 주소칸에 넣고 빈 화면을 누르면 즉시 사진이 출력됩니다.
+            💡 <b>이미지 등록 방법:</b> 이미지를 <a href="https://ko.imgbb.com/" target="_blank" style="color:#0275d8; font-weight:bold;">[ImgBB]</a> 등에 올린 후, <b>이미지 주소</b>를 복사해 아래 주소칸에 넣으세요.
         </div>
     </div>
 
@@ -225,12 +215,12 @@
             </thead>
             <tbody id="infobox-tbody">
                 <tr>
-                    <td colspan="2" class="image-cell">
+                    <td colspan="2" class="image-cell" id="photo-box-td">
                         <div class="edit-view">
                             <label style="font-size:12px; font-weight:bold; display:block; margin-bottom:4px;">🖼️ 프로필 이미지 주소(URL) 입력:</label>
                             <input type="text" id="input-img-url" placeholder="https://... 형태의 이미지 링크 주소를 입력하세요" onchange="updateImagePreview(this.value)">
                         </div>
-                        <div><img id="info-img" src="" alt="프로필 이미지" style="display:none;"></div>
+                        <div id="img-wrapper"></div>
                     </td>
                 </tr>
                 <tr>
@@ -346,7 +336,6 @@
 <script>
     let footnoteCount = 1;
     let savedPasswordHash = "";
-    let imageUrlStr = ""; 
 
     function updateThemeColor(color) {
         document.documentElement.style.setProperty('--theme-color', color);
@@ -358,16 +347,24 @@
         }
     }
 
+    // 🖼️ 완벽한 엑스박스 잔상 제거 및 이미지 렌더링 엔진
     function updateImagePreview(url) {
-        if(!url) return;
-        imageUrlStr = url.trim();
-        const imgEl = document.getElementById('info-img');
-        if(imageUrlStr !== "") {
-            imgEl.src = imageUrlStr;
-            imgEl.style.display = 'block';
-        } else {
-            imgEl.style.display = 'none';
-        }
+        const wrapper = document.getElementById('img-wrapper');
+        wrapper.innerHTML = ""; 
+        if(!url || url.trim() === "") return;
+
+        const cleanUrl = url.trim();
+        const img = new Image();
+        img.src = cleanUrl;
+        img.alt = "프로필 이미지";
+        img.style.maxWidth = "100%";
+        img.style.height = "auto";
+        img.style.display = "block";
+        img.style.margin = "0 auto";
+        img.style.maxHeight = "300px";
+        img.style.objectFit = "contain";
+        
+        wrapper.appendChild(img);
     }
 
     function addCustomAttrForm(key = "", val = "") {
@@ -510,15 +507,23 @@
         window.location.href = window.location.origin + window.location.pathname + '?d=' + compressed;
     }
 
-    window.onload = function() {
+    // 🔒 외부 라이브러리 연동 안전성 강화 로딩 함수
+    window.addEventListener('DOMContentLoaded', function() {
         const params = new URLSearchParams(window.location.search);
         if (params.has('d')) {
             document.body.classList.add('readonly');
             setInputsDisabled(true); 
             
             const compressedData = params.get('d');
+            
+            // 라이브러리가 로드되지 않은 돌발 상황 방어
+            if (typeof LZString === "undefined") {
+                alert("라이브러리 로딩 중입니다. 잠시 후 새로고침해 주세요.");
+                return;
+            }
+
             const jsonStr = LZString.decompressFromEncodedURIComponent(compressedData);
-            if(!jsonStr) { alert("데이터 해독 실패!"); return; }
+            if(!jsonStr) { alert("데이터를 해독하는 데 실패했습니다."); return; }
             
             const data = JSON.parse(jsonStr);
             updateThemeColor(data.color || '#008080');
@@ -535,13 +540,10 @@
             document.getElementById('info-name-main').innerText = data.n_main || '';
             document.getElementById('info-name-sub').innerText = data.n_sub || '';
 
-            // 🖼️ 이미지 강제 출력 보장 처리
+            // 🖼️ 이미지 연동 강제 고정
             if (data.img) {
-                imageUrlStr = data.img;
-                document.getElementById('input-img-url').value = imageUrlStr;
-                const imgEl = document.getElementById('info-img');
-                imgEl.src = imageUrlStr;
-                imgEl.style.display = 'block';
+                document.getElementById('input-img-url').value = data.img;
+                updateImagePreview(data.img);
             }
 
             document.getElementById('info-realname').innerText = data.realname || '-';
@@ -554,7 +556,7 @@
             const baseParsedHtml = `<p class="wiki-text-p">${parseFootnotes(data.body_1 || '')}</p>`;
             document.getElementById('info-section-content-1').innerHTML = (data.sp_1 === 'y') ? buildSpoilerHtml(baseParsedHtml) : baseParsedHtml;
 
-            // 추가 프로필 커스텀 복원 (📐 attr-name 클래스 주입으로 50:50 대칭 강제 보장)
+            // 추가 프로필 커스텀 항목 50:50 대칭 강제 보장 생성
             if(data.customs) {
                 const tbody = document.getElementById('infobox-tbody');
                 data.customs.forEach(c => {
@@ -615,10 +617,10 @@
         } else {
             document.querySelectorAll('.dynamic-form-item').forEach(item => bindDragEvents(item));
         }
-    };
+    });
 
     function copyToClipboard() {
-        navigator.clipboard.writeText(window.location.href).then(() => alert('비율 고정 및 분류창 패치가 반영된 공유 주소가 복사되었습니다!'));
+        navigator.clipboard.writeText(window.location.href).then(() => alert('비율 고정 및 이미지 패치가 적용된 공유 주소가 복사되었습니다!'));
     }
 
     function showPopup(event, text) {
